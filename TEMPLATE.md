@@ -31,9 +31,9 @@ Market (2026-11): `openproject/openproject:14.4.2` / `15.4.2` with Postgres 16 (
 
 ## Resources
 
-Measured on Railway (see `_reports/round13/211-openproject.md`).
+Measured on Railway, test project, 2026-11-24 (OpenProject 17.9.8, 2 web workers): OpenProject 2.5 GB idle (≈0.02 vCPU), Postgres 0.21 GB.
 
-Estimate: OpenProject ≈ 1.5-2 GB idle, Postgres ≈ 0.1 GB → ≈ $18-25/month. Minimum plan: Hobby (does not fit Trial/Free 1 GB per service).
+Estimate: ≈ 2.7 GB → ≈ $27-35/month. Minimum plan: Hobby (does not fit Trial/Free 1 GB per service).
 
 Railway prices: RAM $10/GB-month, vCPU $20/vCPU-month, volume $0.15/GB-month.
 

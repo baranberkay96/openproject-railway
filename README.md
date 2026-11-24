@@ -46,7 +46,7 @@ A password shorter than 10 characters (OpenProject's minimum) never breaks the d
 
 **Configuration.** Any OpenProject setting can be set as an `OPENPROJECT_*` variable (see the environment configuration guide), for example `OPENPROJECT_DEFAULT__LANGUAGE=de`. Keep `SECRET_KEY_BASE` unchanged after the first boot.
 
-**Resources and plans.** OpenProject is a heavy application. Measured on Railway (2026-11-24): about 1.5-2 GB of RAM at idle for the OpenProject service with 2 web workers, and about 0.1 GB for Postgres, so expect roughly $18-25 a month. It does not fit Trial or Free plans (1 GB per service); use Hobby or Pro.
+**Resources and plans.** OpenProject is a heavy application. Measured on Railway (2026-11-24): about 2.5 GB of RAM at idle for the OpenProject service with 2 web workers (web, worker, Hocuspocus, memcached and Apache together), and about 0.2 GB for Postgres, so expect roughly $27-35 a month. It does not fit Trial or Free plans (1 GB per service); use Hobby or Pro.
 
 **Scaling.** Raise `OPENPROJECT_WEB_WORKERS` (each worker needs about 300-400 MB) together with the service's memory. The service runs as one replica because attachments are on its volume.
 
