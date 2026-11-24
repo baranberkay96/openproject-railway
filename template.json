@@ -1,0 +1,182 @@
+{
+  "name": "OpenProject 17 Community",
+  "description": "Project management: tasks, Gantt, boards, wiki, time tracking, Postgres",
+  "category": "Other",
+  "tags": [
+    "openproject",
+    "project-management",
+    "gantt",
+    "scrum",
+    "kanban",
+    "jira-alternative",
+    "time-tracking",
+    "postgres"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/openproject.svg",
+  "upstream": {
+    "openproject": "openproject/openproject:17.9.8@sha256:2d9a77fd8b7781ee3fea84ac232dd449c21ac4f84720b2e3019e8b1a0003684e (OpenProject 17.9.8 all-in-one, 2026-11-19)",
+    "postgres": "ghcr.io/railwayapp-templates/postgres-ssl:17.12@sha256:647d160591a2e16d2f09c5c94f76f9ef641222a89e8175601593ea5a640f663e (= :17, checked 2026-11-24)",
+    "license": "OpenProject Community: GPL-3.0",
+    "checked": "2026-11-24"
+  },
+  "services": {
+    "OpenProject": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/openproject.svg",
+      "source": {
+        "repo": "baranberkay96/openproject-railway",
+        "rootDirectory": "/services/openproject"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/health_checks/default",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": true,
+      "targetPort": 80,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/var/openproject/assets"
+      },
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Port of OpenProject's web server (Puma). Railway's healthcheck uses it; the public domain targets Apache on 80. Keep 8080.",
+          "required": true
+        },
+        "ADMIN_PASSWORD": {
+          "defaultValue": "${{secret(24, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Password of the administrator 'admin' (10-128 characters). Used on the first boot, or with ADMIN_PASSWORD_RESET=true.",
+          "required": true
+        },
+        "ADMIN_EMAIL": {
+          "defaultValue": "admin@example.com",
+          "description": "E-mail of the administrator created on the first boot (change it later in OpenProject).",
+          "required": true
+        },
+        "ADMIN_PASSWORD_RESET": {
+          "defaultValue": "false",
+          "description": "true = set the password of 'admin' to ADMIN_PASSWORD on the next boot (recovery). Set back to false afterwards.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgres://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}?pool=20&encoding=unicode&reconnect=true",
+          "description": "Postgres on the private network (the image's internal database stays off).",
+          "required": true
+        },
+        "SECRET_KEY_BASE": {
+          "defaultValue": "${{secret(64, \"abcdef0123456789\")}}",
+          "description": "Signs sessions and encrypts tokens. Keep it unchanged after the first boot.",
+          "required": true
+        },
+        "OPENPROJECT_HOST__NAME": {
+          "defaultValue": "${{RAILWAY_PUBLIC_DOMAIN}}",
+          "description": "Public host name used in links and e-mails. Change it when you add a custom domain.",
+          "required": true
+        },
+        "OPENPROJECT_HTTPS": {
+          "defaultValue": "true",
+          "description": "Railway serves the domain over HTTPS; OpenProject builds https links and secure cookies.",
+          "required": true
+        },
+        "OPENPROJECT_DEFAULT__LANGUAGE": {
+          "defaultValue": "en",
+          "description": "Language of the seeded data and default for new users (e.g. en, de, fr, es, tr).",
+          "required": false
+        },
+        "OPENPROJECT_WEB_WORKERS": {
+          "defaultValue": "2",
+          "description": "Puma worker processes. Each needs roughly 300-400 MB; raise with the service's memory for more users.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Seconds OpenProject gets to finish requests and jobs on redeploy.",
+          "required": false
+        }
+      }
+    },
+    "Postgres": {
+      "icon": "https://devicons.railway.app/i/postgresql.svg",
+      "source": {
+        "image": "ghcr.io/railwayapp-templates/postgres-ssl:17.12@sha256:647d160591a2e16d2f09c5c94f76f9ef641222a89e8175601593ea5a640f663e"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/var/lib/postgresql/data"
+      },
+      "variables": {
+        "PGDATA": {
+          "defaultValue": "/var/lib/postgresql/data/pgdata",
+          "description": "Location where the database is initialized (inside the volume).",
+          "required": true
+        },
+        "PGHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private hostname of the database.",
+          "required": true
+        },
+        "PGPORT": {
+          "defaultValue": "5432",
+          "description": "Port to connect to Postgres.",
+          "required": true
+        },
+        "PGUSER": {
+          "defaultValue": "${{POSTGRES_USER}}",
+          "description": "User for the Railway Data panel.",
+          "required": true
+        },
+        "PGDATABASE": {
+          "defaultValue": "${{POSTGRES_DB}}",
+          "description": "Database for the Railway Data panel.",
+          "required": true
+        },
+        "PGPASSWORD": {
+          "defaultValue": "${{POSTGRES_PASSWORD}}",
+          "description": "Password for the Railway Data panel.",
+          "required": true
+        },
+        "POSTGRES_DB": {
+          "defaultValue": "openproject",
+          "description": "Database created on the first boot (OpenProject's database).",
+          "required": true
+        },
+        "POSTGRES_USER": {
+          "defaultValue": "postgres",
+          "description": "Database superuser.",
+          "required": true
+        },
+        "POSTGRES_PASSWORD": {
+          "defaultValue": "${{ secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\") }}",
+          "description": "Database password, generated at deploy.",
+          "required": true
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgresql://${{PGUSER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{PGDATABASE}}",
+          "description": "Private connection URL.",
+          "required": true
+        },
+        "SSL_CERT_DAYS": {
+          "defaultValue": "820",
+          "description": "Validity of the self-signed TLS certificate in days.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Seconds Postgres gets to shut down cleanly on redeploy.",
+          "required": true
+        }
+      }
+    }
+  }
+}
