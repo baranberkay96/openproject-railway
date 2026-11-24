@@ -19,7 +19,6 @@ log() { printf '[railway-start] %s\n' "$*"; }
 
 STATE_DIR="${APP_DATA_PATH:-/var/openproject/assets}/.railway"
 LOCK_MARKER="${STATE_DIR}/admin-locked"
-INIT_MARKER="${STATE_DIR}/initialized"
 MIN_PASSWORD=10
 MAX_PASSWORD=128
 
@@ -69,34 +68,20 @@ configure_admin() {
   export OPENPROJECT_SEED__ADMIN__USER__PASSWORD__RESET=false
   export OPENPROJECT_SEED__ADMIN__USER__LOCKED=false
 
-  if [ ! -e "${INIT_MARKER}" ]; then
-    # First boot on this volume: the seeder creates 'admin' with this password.
-    if password_ok "${pw}"; then
-      export OPENPROJECT_SEED__ADMIN__USER__PASSWORD="${pw}"
-      rm -f "${LOCK_MARKER}"
-      log "first boot: administrator 'admin' will be created with ADMIN_PASSWORD."
-    else
-      OPENPROJECT_SEED__ADMIN__USER__PASSWORD="$(head -c 48 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-      export OPENPROJECT_SEED__ADMIN__USER__PASSWORD
-      touch "${LOCK_MARKER}"
-      log "WARNING: ADMIN_PASSWORD must have ${MIN_PASSWORD}-${MAX_PASSWORD} characters. The administrator 'admin' is LOCKED with a random password. Set a valid ADMIN_PASSWORD and redeploy to unlock it."
-    fi
-    date -u +%Y-%m-%dT%H:%M:%SZ > "${INIT_MARKER}"
+  # The seeder creates 'admin' only while no administrator exists, so the configured password
+  # can be passed on every boot. It must never be empty: upstream would fall back to 'admin'.
+  if password_ok "${pw}"; then
+    export OPENPROJECT_SEED__ADMIN__USER__PASSWORD="${pw}"
+  else
+    OPENPROJECT_SEED__ADMIN__USER__PASSWORD="$(head -c 48 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+    export OPENPROJECT_SEED__ADMIN__USER__PASSWORD
+    touch "${LOCK_MARKER}"
+    log "WARNING: ADMIN_PASSWORD must have ${MIN_PASSWORD}-${MAX_PASSWORD} characters. If the administrator 'admin' is created on this boot, it is LOCKED with a random password. Set a valid ADMIN_PASSWORD and redeploy to unlock it."
     return
   fi
 
-  # Later boots: the seeder never touches an existing admin. Only the generated fallback is
-  # passed so that an empty value can never re-introduce the default 'admin' password.
-  OPENPROJECT_SEED__ADMIN__USER__PASSWORD="$(head -c 48 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-  export OPENPROJECT_SEED__ADMIN__USER__PASSWORD
   if [ "${ADMIN_PASSWORD_RESET:-false}" = true ] || [ -e "${LOCK_MARKER}" ]; then
-    if password_ok "${pw}"; then
-      set_password_in_background "${pw}" &
-    elif [ -e "${LOCK_MARKER}" ]; then
-      log "WARNING: the administrator is still LOCKED: ADMIN_PASSWORD must have ${MIN_PASSWORD}-${MAX_PASSWORD} characters."
-    else
-      log "WARNING: ADMIN_PASSWORD_RESET=true but ADMIN_PASSWORD must have ${MIN_PASSWORD}-${MAX_PASSWORD} characters; password unchanged."
-    fi
+    set_password_in_background "${pw}" &
   fi
 }
 

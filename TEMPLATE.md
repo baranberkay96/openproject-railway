@@ -18,7 +18,7 @@ Pinned 2026-11-24: OpenProject 17.9.8 (2026-11-19).
 
 - All-in-one image instead of separate web/worker services: web and worker both need the attachments directory, and a Railway volume belongs to one service (STANDARD 3b). The image runs web, good_job worker, Hocuspocus, memcached and Apache under supervisord; `DATABASE_URL` pointing at Railway Postgres disables its internal Postgres.
 - `PORT=8080` (Puma, healthcheck; health checks are exempt from the HTTPS redirect and host check), `targetPort` 80 (Apache: `/hocuspocus` WebSocket + app). `SERVER_NAME` unset so Apache serves every host name.
-- Admin: `railway-start.sh` validates `ADMIN_PASSWORD` (10-128) and exports `OPENPROJECT_SEED__ADMIN__USER__PASSWORD`, `__PASSWORD__RESET=false`, `__MAIL`, `__LOCKED=false`. Invalid → random password + lock marker on the volume. Later boots always pass a random seed password (the seeder ignores it while an admin exists), so the default `admin` can never come back. Reset/unlock: background job waits for `/health_checks/default`, then `rails runner railway-admin.rb` as the app user.
+- Admin: `railway-start.sh` validates `ADMIN_PASSWORD` (10-128) and exports `OPENPROJECT_SEED__ADMIN__USER__PASSWORD`, `__PASSWORD__RESET=false`, `__MAIL`, `__LOCKED=false`. The seeder uses it only while no administrator exists, so a valid password is passed on every boot; an invalid one is replaced by a random password + lock marker on the volume, so the default `admin` can never come back. Reset/unlock: background job waits for `/health_checks/default`, then `rails runner railway-admin.rb` as the app user.
 
 ## Improvements over market templates
 
