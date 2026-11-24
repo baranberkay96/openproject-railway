@@ -12,7 +12,9 @@ user.password_confirmation = password
 user.force_password_change = false
 user.status = User.statuses[:active]
 user.failed_login_count = 0 if user.respond_to?(:failed_login_count=)
-if user.save
+# Like the admin seeder, skip OpenProject's character-class rules (lowercase, uppercase, digit,
+# special): railway-start already enforced 10-128 characters, and generated passwords are alphanumeric.
+if user.save(validate: false)
   puts "[railway-admin] password of administrator '#{user.login}' set from ADMIN_PASSWORD."
   exit 0
 else
