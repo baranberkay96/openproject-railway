@@ -61,8 +61,8 @@
           "required": false
         },
         "DATABASE_URL": {
-          "defaultValue": "postgres://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}?pool=20&encoding=unicode&reconnect=true",
-          "description": "Postgres on the private network (the image's internal database stays off).",
+          "defaultValue": "postgres://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}",
+          "description": "Postgres on the private network (no query parameters: the image's startup check passes this URL to psql through a shell).",
           "required": true
         },
         "SECRET_KEY_BASE": {
