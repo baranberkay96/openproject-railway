@@ -1,5 +1,7 @@
 # Deploy and Host OpenProject with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/openproject-17-community?referralCode=20H68q)
+
 OpenProject is open-source project management software: work packages, Gantt charts, agile boards, wikis, meetings, time and cost tracking, and team planning. This community template runs OpenProject 17.9.8 Community Edition with PostgreSQL 17 and creates the administrator with a generated password, so the well-known default login is never active.
 
 ## About Hosting OpenProject
